@@ -12,6 +12,7 @@ const userService = {
    */
   async getAllUsers() {
     const data = await fs.readFile(USERS_FILE, 'utf8')
+    console.log('ALL USERS', data)
     return JSON.parse(data)
   },
   
@@ -23,7 +24,7 @@ const userService = {
     if (users[username]) {
       throw new Error('User already exists')
     }
-
+    
     const hashedPassword = await bcrypt.hash(password, 10)
     users[username] = hashedPassword
     
@@ -36,6 +37,7 @@ const userService = {
    */
   async verifyUser(username, password) {
     const users = await this.getAllUsers()
+    console.log('USERS', users, username, password)
     if (!users[username]) {
       return false
     }

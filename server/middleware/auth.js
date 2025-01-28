@@ -15,10 +15,17 @@ export default async (req, res, next) => {
       req.user = credentials.name
       next()
     } else {
+      // Change status to 401 to trigger browser auth prompt
       res.setHeader('WWW-Authenticate', 'Basic realm="Protected"')
-      res.status(401).json({ message: 'Invalid credentials' })
+      res.status(401).json({ 
+        message: 'Invalid credentials'
+      })
     }
   } catch (error) {
-    res.status(500).json({ message: 'Authentication error' })
+    // Change status to 401 to trigger browser auth prompt
+    res.setHeader('WWW-Authenticate', 'Basic realm="Protected"')
+    res.status(401).json({ 
+      message: 'Authentication error'
+    })
   }
 }
