@@ -2,12 +2,16 @@
   "name": "cronly",
   "version": "1.0.0",
   "description": "NodeJS CRON server w/ web interface",
-  "main": "src/app.js",
+  "main": "server/app.js",
   "type": "module",
+  "bin": {
+    "cronly": "./server/app.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon src/app.js",
-    "dev": "nodemon src/app.js"
+    "start": "node server/app.js",
+    "dev": "node --watch server/app.js",
+    "dev:nodemon": "nodemon server/app.js"
   },
   "keywords": [],
   "author": "",

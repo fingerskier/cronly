@@ -3,12 +3,12 @@ import userService from '../services/userService.js'
 
 export default async (req, res, next) => {
   const credentials = basicAuth(req)
-
+  
   if (!credentials) {
     res.setHeader('WWW-Authenticate', 'Basic realm="Protected"')
     return res.status(401).json({ message: 'Authentication required' })
   }
-
+  
   try {
     const isValid = await userService.verifyUser(credentials.name, credentials.pass)
     if (isValid) {

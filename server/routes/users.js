@@ -3,7 +3,9 @@ import userService from '../services/userService.js'
 
 const router = express.Router()
 
-// Get all users
+/**
+ * Get all users
+ */
 router.get('/', async (req, res) => {
   try {
     const users = await userService.getAllUsers()
@@ -13,7 +15,9 @@ router.get('/', async (req, res) => {
   }
 })
 
-// Create new user
+/**
+ * Create new user
+ */
 router.post('/', async (req, res) => {
   try {
     const { username, password } = req.body
@@ -32,5 +36,6 @@ router.post('/', async (req, res) => {
     }
   }
 })
+
 
 export default router

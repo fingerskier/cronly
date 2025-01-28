@@ -3,6 +3,9 @@ import cron from 'node-cron'
 const activeCrons = new Map()
 
 const cronService = {
+  /**
+   * Create new CRON job
+   */
   createJob(name, schedule, command) {
     if (activeCrons.has(name)) {
       throw new Error('CRON job already exists')
@@ -23,7 +26,9 @@ const cronService = {
     return { name, schedule, command }
   },
   
-  
+  /**
+   * Get all CRON jobs
+   */
   getAllJobs() {
     const jobs = []
     for (const [name, details] of activeCrons) {
@@ -36,7 +41,9 @@ const cronService = {
     return jobs
   },
   
-  
+  /**
+   * Delete CRON job
+   */
   deleteJob(name) {
     const job = activeCrons.get(name)
     if (!job) {
@@ -48,5 +55,6 @@ const cronService = {
     return { message: 'CRON job deleted' }
   }
 }
+
 
 export default cronService

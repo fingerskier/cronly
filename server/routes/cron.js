@@ -3,7 +3,9 @@ import cronService from '../services/cronService.js'
 
 const router = express.Router()
 
-// Get all CRON jobs
+/**
+ * Get all CRON jobs
+ */
 router.get('/', (req, res) => {
   try {
     const jobs = cronService.getAllJobs()
@@ -13,7 +15,9 @@ router.get('/', (req, res) => {
   }
 })
 
-// Create new CRON job
+/**
+ * Create new CRON job
+ */
 router.post('/', (req, res) => {
   try {
     const { name, schedule, command } = req.body
@@ -33,7 +37,9 @@ router.post('/', (req, res) => {
   }
 })
 
-// Delete CRON job
+/**
+ * Delete CRON job
+ */
 router.delete('/:name', (req, res) => {
   try {
     const result = cronService.deleteJob(req.params.name)
