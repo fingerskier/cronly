@@ -1,3 +1,5 @@
+import 'dotenv/config'
+
 import express from 'express'
 import userRoutes from './routes/users.js'
 import cronRoutes from './routes/cron.js'
