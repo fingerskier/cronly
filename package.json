@@ -1,6 +1,6 @@
 {
   "name": "cronly",
-  "version": "1.0.0",
+  "version": "2025.1.28",
   "description": "NodeJS CRON server w/ web interface",
   "main": "server/app.js",
   "type": "module",

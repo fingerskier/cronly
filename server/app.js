@@ -1,11 +1,13 @@
 import 'dotenv/config'
 
+import auth from './middleware/auth.js'
 import express from 'express'
 import cronRoutes from './routes/cron.js'
+import path from 'path'
 import scriptsRoutes from './routes/scripts.js'
 import userRoutes from './routes/users.js'
-import auth from './middleware/auth.js'
 
+const __dirname = path.dirname(new URL(import.meta.url).pathname).substring(1)
 const app = express()
 const PORT = process.env.PORT || 3000
 
@@ -15,7 +17,9 @@ app.use(express.json())
 app.use(auth)
 
 // Serve static files from the ui directory
-app.use('/', express.static('src/ui'))
+const staticPath = path.join(__dirname, 'ui')
+console.log('STATIC PATH', staticPath)
+app.use('/', express.static(staticPath))
 
 app.all('/health', (req, res) => {
   res.status(200).json({ 

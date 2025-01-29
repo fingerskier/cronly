@@ -1,7 +1,9 @@
 {
+  "homepage": "/",
   "name": "frontend",
-  "version": "0.1.0",
+  "version": "2025.1.28",
   "private": true,
+  "proxy": "http://localhost:8080",
   "dependencies": {
     "cra-template": "1.2.0",
     "react": "^19.0.0",

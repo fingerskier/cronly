@@ -2,18 +2,27 @@ import fs from 'fs/promises'
 import bcrypt from 'bcryptjs'
 import path from 'path'
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname)
+const __dirname = (new URL(import.meta.url)).pathname.substring(1)
 
-const USERS_FILE = path.join(__dirname, '../../config/users.json')
+const USERS_FILE = path.join(__dirname, '../../../config/users.json')
+
+console.log('USERS FILE')
+console.log(USERS_FILE)
+
 
 const userService = {
   /**
    * Get all users
    */
   async getAllUsers() {
-    const data = await fs.readFile(USERS_FILE, 'utf8')
-    console.log('ALL USERS', data)
-    return JSON.parse(data)
+    try {
+      const data = await fs.readFile(USERS_FILE, 'utf8')
+      console.log('ALL USERS', data)
+      return JSON.parse(data)
+    } catch (error) {
+      console.error('Error reading users file:', error)
+      return {}
+    }
   },
   
   /**
@@ -37,11 +46,14 @@ const userService = {
    */
   async verifyUser(username, password) {
     const users = await this.getAllUsers()
-    console.log('USERS', users, username, password)
+    
     if (!users[username]) {
+      console.log('USER NOT FOUND', users, username, password)
       return false
     }
-    return bcrypt.compare(password, users[username])
+    
+    console.log('VERIFIED USER', username, users[username])
+    return password === users[username]
   }
 }
 
