@@ -1,5 +1,4 @@
 import fs from 'fs/promises'
-import bcrypt from 'bcryptjs'
 import path from 'path'
 
 const __dirname = (new URL(import.meta.url)).pathname.substring(1)
@@ -9,53 +8,84 @@ const USERS_FILE = path.join(__dirname, '../../../config/users.json')
 console.log('USERS FILE')
 console.log(USERS_FILE)
 
-
-const userService = {
-  /**
-   * Get all users
-   */
-  async getAllUsers() {
-    try {
-      const data = await fs.readFile(USERS_FILE, 'utf8')
-      console.log('ALL USERS', data)
-      return JSON.parse(data)
-    } catch (error) {
-      console.error('Error reading users file:', error)
-      return {}
-    }
-  },
-  
-  /**
-   * Create new user
-   */
-  async createUser(username, password) {
-    const users = await this.getAllUsers()
+export const createUser = async (username, password) => {
+  try {
+    const users = await getAllUsers()
+    
     if (users[username]) {
       throw new Error('User already exists')
     }
     
-    const hashedPassword = await bcrypt.hash(password, 10)
-    users[username] = hashedPassword
+    users[username] = password
     
     await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2))
     return { username }
-  },
-  
-  /**
-   * Verify user
-   */
-  async verifyUser(username, password) {
-    const users = await this.getAllUsers()
-    
-    if (!users[username]) {
-      console.log('USER NOT FOUND', users, username, password)
-      return false
-    }
-    
-    console.log('VERIFIED USER', username, users[username])
-    return password === users[username]
+  } catch (error) {
+    console.error('Error creating user:', error)
+    throw error
   }
 }
 
+export const deleteUser = async (username) => {
+  const users = await getAllUsers()
+  delete users[username]
+  await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2))
+}
 
-export default userService
+export const getAllUsers = async () => {
+  try {
+    const data = await fs.readFile(USERS_FILE, 'utf8')
+    
+    return JSON.parse(data)
+  } catch (error) {
+    console.error('Error reading users file:', error)
+    return {}
+  }
+}
+
+export const getUser = async (username) => {
+  const users = await getAllUsers()
+  const thisUser = {
+    username,
+    password: users[username]
+  }
+  return thisUser
+
+}
+
+
+export const verifyUser = async (username, password) => {
+  try {
+    const users = await getAllUsers()
+    
+    if (!users[username]) {
+      return false
+    }
+    
+    return password === users[username]
+  } catch (error) {
+    console.error('Error verifying user:', error)
+    return false
+  }
+}
+
+export const updateUser = async (username, password) => {
+  try {
+    const users = await getAllUsers()
+    users[username] = password
+    await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2))
+  } catch (error) {
+    console.error('Error updating user:', error)
+    throw error
+  }
+}
+
+// You can also keep the default export if needed
+export default {
+  createUser,
+  deleteUser,
+  getAllUsers,
+  getUser,
+  verifyUser,
+  updateUser
+}

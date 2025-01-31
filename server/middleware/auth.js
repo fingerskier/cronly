@@ -1,36 +1,50 @@
-import basicAuth from 'basic-auth'
-import userService from '../services/userService.js'
+import jwt from 'jsonwebtoken'
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key' // Should be in env vars
+
+const verifyToken = (token) => {
+  try {
+    return jwt.verify(token, JWT_SECRET)
+  } catch (error) {
+    return null
+  }
+}
+
+
+export const generateToken = (username) => {
+  return jwt.sign({ username }, JWT_SECRET, { 
+    expiresIn: '24h'
+  })
+}
 
 
 export default async (req, res, next) => {
-  const credentials = basicAuth(req)
+  const authHeader = req.headers.authorization
   
-  console.log('Auth headers:', req.headers.authorization)
+  console.log('Auth headers:', authHeader)
   
-  if (!credentials) {
-    console.error('No credentials provided')
-    res.setHeader('WWW-Authenticate', 'Basic realm="Protected"')
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.error('No token provided')
     return res.status(401).json({ message: 'Authentication required' })
   }
   
   try {
-    const isValid = await userService.verifyUser(credentials.name, credentials.pass)
+    const token = authHeader.split(' ')[1]
+    const decoded = verifyToken(token)
     
-    if (isValid) {
-      req.user = credentials.name
-      res.removeHeader('WWW-Authenticate')
-      return next()
-    } else {
-      res.setHeader('WWW-Authenticate', 'Basic realm="Protected"')
-      return res.status(401).json({ 
-        message: 'Invalid credentials'
+    if (!decoded) {
+      return res.status(401).json({
+        message: 'Invalid or expired token'
       })
     }
+    
+    req.user = decoded.username
+    return next()
+    
   } catch (error) {
     console.error('Authentication error:', error)
-    res.setHeader('WWW-Authenticate', 'Basic realm="Protected"')
-    return res.status(401).json({ 
-      message: 'Authentication error'
+    return res.status(401).json({
+      message: 'Authentication error' 
     })
   }
 }

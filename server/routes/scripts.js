@@ -9,6 +9,10 @@ const router = express.Router()
  */
 async function listScripts(directory) {
   const scripts = [];
+  
+  // create directory if it doesn't exist
+  await fs.mkdir(directory, { recursive: true })
+  
   const files = await fs.readdir(directory);
   
   for (const file of files) {
@@ -29,7 +33,7 @@ async function listScripts(directory) {
 /**
  * Get all scripts
  */
-router.get('/scripts', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const scriptsDir = path.resolve(process.cwd(), 'scripts'); // or wherever scripts are stored
     const scripts = await listScripts(scriptsDir);
@@ -37,6 +41,26 @@ router.get('/scripts', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+})
+
+/**
+ * Run a script
+ */
+router.put('/:script', async (req, res) => {
+  const script = req.params.script
+  const scriptPath = path.resolve(process.cwd(), 'scripts', script)
+  const result = await exec(scriptPath)
+  res.json(result)
+})
+
+/**
+ * Create a script
+ */
+router.post('/', async (req, res) => {
+  const script = req.body.script
+  const scriptPath = path.resolve(process.cwd(), 'scripts', script)
+  const result = await exec(scriptPath)
+  res.json(result)
 })
 
 

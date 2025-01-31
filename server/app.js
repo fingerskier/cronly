@@ -6,6 +6,8 @@ import cronRoutes from './routes/cron.js'
 import path from 'path'
 import scriptsRoutes from './routes/scripts.js'
 import userRoutes from './routes/users.js'
+import loginRouter from './api/auth.js'
+
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname).substring(1)
 const app = express()
@@ -13,12 +15,9 @@ const PORT = process.env.PORT || 3000
 
 app.use(express.json())
 
-// all routes protected by auth
-app.use(auth)
-
 // Serve static files from the ui directory
 const staticPath = path.join(__dirname, 'ui')
-console.log('STATIC PATH', staticPath)
+
 app.use('/', express.static(staticPath))
 
 app.all('/health', (req, res) => {
@@ -29,13 +28,14 @@ app.all('/health', (req, res) => {
   })
 })
 
-// Public routes (user management)
-app.use('/api/users', userRoutes)
+// Public API routes
+app.use('/api/auth', loginRouter)
 
-  // Protected routes (CRON management)
-app.use('/api/cron', cronRoutes)
+// Protected API routes
+app.use('/api/users', auth, userRoutes)
+app.use('/api/cron', auth, cronRoutes)
+app.use('/api/scripts', auth, scriptsRoutes)
 
-app.use('/api/scripts', scriptsRoutes)
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)

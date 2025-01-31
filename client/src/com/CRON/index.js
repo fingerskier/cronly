@@ -17,6 +17,10 @@ export default function CRON() {
   
   return <div>
     {loading && <p>Loading...</p>}
-    {data?.map(job => <p key={job.id}>{job.name}</p>)}
+    {data?.length?
+      data?.map(job => <p key={job.id}>{job.name}</p>)
+    :
+      <p>No CRON jobs found</p>
+    }
   </div>
 }

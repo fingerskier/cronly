@@ -11,8 +11,14 @@ import './App.css'
 
 
 export default function App() {
-  const [credentials] = useLocalStorage('credentials', null)
+  const [credentials, setCredentials] = useLocalStorage('credentials', null)
   const {Route} = useSimpleRouter()
+  
+  React.useEffect(() => {
+    if (!credentials) {
+      window.location.hash = 'ux/login'
+    }
+  }, [credentials])
   
   
   return <>
@@ -26,9 +32,10 @@ export default function App() {
     
     {credentials?.username && <>
       <Route path="ux">
+        <Route path="cron" element={<CRON />} />
+        <Route path="login" element={<Login />} />
         <Route path="users" element={<Users />} />
         <Route path="scripts" element={<Scripts />} />
-        <Route path="cron" element={<CRON />} />
       </Route>
     </>}
     

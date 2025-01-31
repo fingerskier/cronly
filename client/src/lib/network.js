@@ -2,64 +2,122 @@
  * Get headers with auth from localStorage
  */
 const getHeaders = () => {
-  const credentials = JSON.parse(localStorage.getItem('credentials') || '{}')
-  
   const headers = new Headers({
     'Content-Type': 'application/json',
-    'Authorization': credentials.username && credentials.password 
-      ? 'Basic ' + btoa(`${credentials.username}:${credentials.password}`)
-      : ''
   })
+  
+  const token = localStorage.getItem('jwt')
+  if (token) {
+    headers.append('Authorization', `Bearer ${token}`)
+  }
   
   return headers
 }
 
 /**
+ * Check response and clear credentials if unauthorized
+ */
+const handleUnauthorized = (response) => {
+  if (response.status === 401) {
+    const credentials = localStorage.getItem('credentials')
+    const token = localStorage.getItem('jwt')
+    
+    if (credentials) {
+      localStorage.removeItem('credentials')
+    }
+    if (token) {
+      localStorage.removeItem('jwt')
+    }
+    window.location.reload()
+  }
+  return response
+}
+
+/**
  * GET request wrapper
  */
-export const fetchGet = async (url, data) => {
-  // build query string from `data`
-  const queryString = Object.entries(data).map(([key, value]) => `${key}=${value}`).join('&')
-  
-  const response = await fetch(url + (queryString ? `?${queryString}` : ''), {
-    method: 'GET',
-    headers: getHeaders(),
-  })
-  
-  return await response.json()
+export const get = async (url, data) => {
+  try {
+    // build query string from `data`
+    const queryString = data? Object.entries(data).map(([key, value]) => `${key}=${value}`).join('&') : ''
+    
+    const response = await fetch(url + (queryString ? `?${queryString}` : ''), {
+      credentials: 'include',
+      headers: getHeaders(),
+      method: 'GET',
+    })
+    
+    const result = await handleUnauthorized(response).json()
+    
+    return result
+  } catch (error) {
+    console.error('GET', url, error)
+    throw error
+  }
 }
 
 /**
  * POST request wrapper
  */
-export const fetchPost = async (url, data) => {
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: getHeaders(),
-    body: JSON.stringify(data),
-  })
-  return await response.json()
+export const post = async (url, data) => {
+  try {
+    const response = await fetch(url, {
+      body: JSON.stringify(data),
+      credentials: 'include',
+      headers: getHeaders(),
+      method: 'POST',
+    })
+    const result = await response.json()
+    
+    return result
+  } catch (error) {
+    console.error('POST', url, error)
+    throw error
+  }
 }
 
 /**
  * PUT request wrapper
  */
-export const fetchPut = async (url, data) => {
-  const response = await fetch(url, {
-    method: 'PUT',
-    headers: getHeaders(),
-    body: JSON.stringify(data),
-  })
-  return await response.json()
+export const put = async (url, data) => {
+  try {
+    const response = await fetch(url, {
+      body: JSON.stringify(data),
+      credentials: 'include',
+      headers: getHeaders(),
+      method: 'PUT',
+    })
+    
+    const result = response.headers.get('content-type')?.includes('json')
+      ? await response.json()
+      : await response.text()
+    
+    return result
+  } catch (error) {
+    console.error('PUT', url, error)
+    throw error
+  }
 }
 
 /**
  * DELETE request wrapper
  */
-export const fetchDelete = async (url) => {
-  const response = await fetch(url, {
-    method: 'DELETE',
-    headers: getHeaders(),
-  })
-  return await response.json()
+export const del = async (url) => {
+  try {
+    const response = await fetch(url, {
+      credentials: 'include',
+      headers: getHeaders(),
+      method: 'DELETE',
+    })
+    
+
+    const result = response.headers.get('content-type')?.includes('json')
+      ? await response.json()
+      : await response.text()
+    
+    return result
+  } catch (error) {
+    console.error('DELETE', url, error)
+    throw error
+  }
 }

@@ -50,3 +50,9 @@ footer a:hover {
 footer a:active {
   border-style: inset;
 }
+
+footer img {
+  margin: 0;
+  padding: 0;
+  max-height: 4rem;
+}
